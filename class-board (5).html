@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geosciences</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style id="app-style">
+:root{
+  --board:#E4EAE6;
+  --contour:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520' viewBox='0 0 520 520' fill='none' stroke='%23C6D0CA' stroke-width='1.2'%3E%3Cpath d='M-10 70 C80 30 150 120 260 80 S420 20 530 70'/%3E%3Cpath d='M-10 110 C90 70 160 160 265 120 S425 60 530 110'/%3E%3Cpath d='M-10 150 C100 115 170 200 270 165 S430 105 530 150'/%3E%3Cpath d='M-10 300 C70 260 140 340 250 300 S400 250 530 300'/%3E%3Cpath d='M-10 340 C80 305 150 380 255 345 S405 295 530 340'/%3E%3Cpath d='M-10 380 C90 350 160 420 260 390 S410 340 530 380'/%3E%3Cpath d='M-10 420 C100 395 170 460 265 435 S415 385 530 420'/%3E%3Cellipse cx='400' cy='230' rx='46' ry='24'/%3E%3Cellipse cx='400' cy='230' rx='24' ry='11'/%3E%3C/svg%3E");
+  --ink:#1D2629;
+  --muted:#53646A;
+  --rule:#B7C3BE;
+  --panel:#F4F7F5;
+  --accent:#2C6770;
+  --accent-ink:#FFFFFF;
+  --danger:#A3321F;
+  --plan:#F5D978;
+  --assignment:#A9D1EE;
+  --due:#F4A794;
+  --action:#C0DC9F;
+  --test:#D4BFEC;
+  --note-ink:#1D2629;
+  --shadow:0 1px 1px rgba(29,38,41,.14), 0 8px 16px -8px rgba(29,38,41,.42);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{margin:0;min-height:100vh;background-color:var(--board);background-image:var(--contour);background-size:520px 520px;color:var(--ink);font-family:"Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45;}
+.hand{font-family:Kalam,"Segoe Print","Bradley Hand","Chalkboard SE","Comic Sans MS",cursive;}
+#app{max-width:1240px;margin:0 auto;padding:28px 20px 48px;}
+button{font:inherit;}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+
+.masthead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;padding-bottom:18px;border-bottom:2px solid var(--ink);}
+.titles{min-width:0;flex:1 1 320px;}
+h1{margin:0;font-size:clamp(2rem,5vw,3.25rem);font-weight:800;letter-spacing:-0.025em;line-height:.98;font-variation-settings:"opsz" 96;}
+.subtitle{margin:.5rem 0 0;color:var(--muted);font-size:1.02rem;}
+.title-input,.subtitle-input{display:block;width:100%;max-width:26ch;background:transparent;color:var(--ink);border:0;border-bottom:1.5px dashed var(--rule);padding:2px 0;font-family:inherit;}
+.title-input{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;letter-spacing:-0.02em;}
+.subtitle-input{margin-top:8px;font-size:1rem;color:var(--muted);max-width:40ch;}
+.controls{display:flex;flex-wrap:wrap;gap:10px;}
+.seg,.nav{display:inline-flex;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--panel);}
+.seg button,.nav button{border:0;background:transparent;color:var(--ink);font-weight:600;font-size:.92rem;padding:8px 15px;min-height:40px;cursor:pointer;}
+.seg button+button,.nav button+button{border-left:1.5px solid var(--ink);}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--board);}
+.nav .arrow{font-size:1.15rem;line-height:1;padding:8px 13px;}
+
+.editbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding:10px 12px;background:var(--panel);border:1.5px solid var(--rule);border-radius:10px;}
+.editbar .status{margin-right:auto;font-size:.92rem;color:var(--muted);}
+.editbar .status.dirty{color:var(--ink);font-weight:600;}
+.editbar .status.dirty::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);margin-right:8px;vertical-align:middle;}
+.editbar .toggle{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600;flex-basis:100%;}
+.editbar .toggle input{width:18px;height:18px;accent-color:var(--accent);margin:0;}
+.btn{border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);font-weight:600;font-size:.92rem;padding:8px 14px;min-height:40px;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+.period{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin:24px 0 16px;}
+.period-label{margin:0;font-size:1.3rem;font-weight:700;letter-spacing:-0.01em;}
+.focus{margin:0;padding:6px 18px 4px;font-size:clamp(1.15rem,2.5vw,1.5rem);line-height:1.3;background:color-mix(in srgb,var(--plan) 50%,var(--panel));color:var(--ink);transform:rotate(-0.7deg);box-shadow:var(--shadow);}
+.focus-input{flex:1 1 320px;max-width:640px;font-size:1.2rem;padding:8px 12px;border:1.5px dashed var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;min-height:36px;border-radius:999px;border:1.5px solid var(--rule);background:var(--panel);color:var(--ink);font-size:.88rem;font-weight:600;cursor:pointer;}
+.sw{width:16px;height:16px;border-radius:3px;background:var(--c);flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);}
+.chip[aria-pressed="false"]{opacity:.5;}
+.chip[aria-pressed="false"] .label{text-decoration:line-through;}
+
+.t-plan{--c:var(--plan);} .t-assignment{--c:var(--assignment);} .t-due{--c:var(--due);} .t-action{--c:var(--action);} .t-test{--c:var(--test);}
+
+.week{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;}
+.day{display:flex;flex-direction:column;min-width:0;}
+.day-head{display:flex;align-items:baseline;gap:8px;padding:4px 2px 8px;margin-bottom:12px;border-bottom:1.5px solid var(--rule);}
+.dow{font-weight:700;font-size:1.02rem;}
+.dnum{color:var(--muted);font-variant-numeric:tabular-nums;}
+.is-today .day-head{border-bottom:3px solid var(--accent);}
+.today-tag{margin-left:auto;font-size:.76rem;font-weight:700;background:var(--accent);color:var(--accent-ink);padding:2px 9px;border-radius:999px;}
+.lane{display:flex;flex-direction:column;gap:16px;min-height:300px;padding:6px 4px;border-radius:10px;}
+.editing .lane{outline:1.5px dashed var(--rule);outline-offset:2px;}
+.lane.drag-over{background:color-mix(in srgb,var(--accent) 16%,transparent);}
+.empty{margin:4px;color:var(--muted);font-size:.9rem;}
+.weekend-row{margin-top:26px;}
+.weekend-row h3{margin:0 0 10px;font-size:1rem;font-weight:700;}
+.weekend-row .lane{min-height:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+
+.stack{display:flex;flex-direction:column;}
+.stack-label{margin:0 0 8px 2px;font-size:.8rem;font-weight:700;color:var(--muted);}
+.stack .note+.note{margin-top:-74px;}
+
+.note{position:relative;color:var(--note-ink);background-color:var(--c);background-image:linear-gradient(to bottom,rgba(0,0,0,.07),rgba(0,0,0,0) 16px);transform:rotate(var(--tilt,0deg));box-shadow:var(--shadow);border-radius:2px 2px 16px 2px / 2px 2px 7px 2px;min-width:0;}
+.note-open{appearance:none;border:0;background:transparent;color:inherit;text-align:left;width:100%;min-height:122px;padding:18px 14px 12px;display:flex;flex-direction:column;gap:6px;cursor:pointer;}
+.editing .note{cursor:grab;}
+.editing .note-open{padding-bottom:48px;}
+.note.dragging{opacity:.35;}
+.note-from{position:absolute;top:3px;left:14px;font-size:.7rem;font-weight:700;opacity:.7;pointer-events:none;}
+.note-title{font-family:Kalam,"Segoe Print","Bradley Hand","Chalkboard SE","Comic Sans MS",cursive;font-weight:700;font-size:1.16rem;line-height:1.2;overflow-wrap:anywhere;}
+.note-body{font-family:Kalam,"Segoe Print","Bradley Hand","Chalkboard SE","Comic Sans MS",cursive;font-size:.98rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;white-space:pre-line;}
+.note-type{margin-top:auto;padding-top:4px;font-size:.74rem;font-weight:600;opacity:.75;}
+.note.done{filter:saturate(.45);}
+.note.done .note-open>*:not(.note-type){opacity:.6;}
+.note.done .note-title{text-decoration:line-through;text-decoration-thickness:2px;padding-right:56px;}
+.done-stamp{position:absolute;top:10px;right:10px;padding:1px 8px;border:2px solid var(--note-ink);border-radius:4px;font-size:.78rem;font-weight:800;transform:rotate(-8deg);pointer-events:none;background:rgba(255,255,255,.35);}
+.note-tools{position:absolute;right:8px;bottom:8px;display:flex;gap:6px;}
+.tool{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1.5px solid rgba(29,38,41,.45);background:rgba(255,255,255,.7);color:#1D2629;cursor:pointer;padding:0;}
+.tool[aria-pressed="true"]{background:#1D2629;color:#FFFFFF;border-color:#1D2629;}
+.tool svg{width:18px;height:18px;}
+.add-here{background:transparent;color:var(--muted);border:1.5px dashed var(--rule);border-radius:8px;padding:12px;font-weight:600;font-size:.9rem;cursor:pointer;}
+.add-here:hover{color:var(--ink);border-color:var(--ink);}
+
+.month{border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--panel);}
+.mhead,.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));}
+.mhead span{padding:8px 10px;font-weight:700;font-size:.85rem;border-bottom:1.5px solid var(--ink);}
+.cell{appearance:none;border:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:transparent;color:var(--ink);text-align:left;min-width:0;min-height:116px;padding:6px;display:flex;flex-direction:column;gap:4px;cursor:pointer;}
+.cell:nth-child(7n){border-right:0;}
+.cell.weekend{background:color-mix(in srgb,var(--board) 60%,var(--panel));}
+.cell.outside{color:var(--muted);}
+.cell.outside .cnum{opacity:.55;}
+.cnum{font-weight:700;font-size:.86rem;font-variant-numeric:tabular-nums;align-self:flex-start;padding:1px 7px;border-radius:999px;}
+.cell.is-today .cnum{background:var(--accent);color:var(--accent-ink);}
+.mini{display:block;background:var(--c);color:var(--note-ink);font-family:Kalam,"Segoe Print","Comic Sans MS",cursive;font-size:.84rem;line-height:1.25;padding:3px 6px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mini.done{text-decoration:line-through;opacity:.55;}
+.more{font-size:.75rem;font-weight:600;color:var(--muted);}
+
+.foot{margin-top:28px;color:var(--muted);font-size:.88rem;}
+
+dialog{border:0;padding:0;background:transparent;width:calc(100vw - 32px);max-width:560px;color:var(--note-ink);overflow:visible;}
+dialog::backdrop{background:rgba(12,20,22,.5);}
+.sheet{background-color:var(--c,#F4F7F5);background-image:linear-gradient(to bottom,rgba(0,0,0,.07),rgba(0,0,0,0) 22px);padding:26px 22px 18px;border-radius:3px 3px 20px 3px / 3px 3px 9px 3px;box-shadow:0 24px 60px -12px rgba(0,0,0,.5);transition:background-color .2s;max-height:calc(100vh - 40px);overflow:auto;}
+.sheet h2{margin:0 0 4px;font-size:1.25rem;font-weight:700;}
+.sheet p.help{margin:6px 0 0;font-size:.92rem;}
+.field{display:flex;flex-direction:column;gap:4px;margin-top:14px;font-weight:600;font-size:.88rem;}
+.field input,.field textarea{font:inherit;font-weight:400;font-size:1rem;padding:9px 10px;border:1.5px solid rgba(29,38,41,.38);border-radius:6px;background:rgba(255,255,255,.62);color:#1D2629;width:100%;}
+.field textarea{resize:vertical;min-height:96px;font-family:Kalam,"Segoe Print","Comic Sans MS",cursive;font-size:1.05rem;}
+.field input.title-field{font-family:Kalam,"Segoe Print","Comic Sans MS",cursive;font-weight:700;font-size:1.25rem;}
+.code-box{width:100%;min-height:200px;margin-top:12px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:8px;border:1.5px solid rgba(29,38,41,.38);border-radius:6px;}
+.check{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-weight:600;font-size:.95rem;}
+.check input{width:18px;height:18px;margin:0;accent-color:#1D2629;}
+.types{border:0;padding:0;margin:14px 0 0;}
+.types legend{padding:0;margin-bottom:6px;font-weight:600;font-size:.88rem;}
+.type-row{display:flex;flex-wrap:wrap;gap:6px;}
+.tchip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1.5px solid rgba(29,38,41,.35);background:rgba(255,255,255,.55);font-size:.86rem;font-weight:600;cursor:pointer;}
+.tchip:has(input:checked){border-color:#1D2629;background:rgba(255,255,255,.9);}
+.tchip input{margin:0;accent-color:#1D2629;}
+.error{min-height:1.2em;margin:10px 0 0;font-size:.88rem;font-weight:600;color:#8A2414;}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px;}
+.actions .spacer{flex:1;}
+.sheet .btn{background:rgba(255,255,255,.72);border-color:#1D2629;color:#1D2629;}
+.sheet .btn.primary{background:#1D2629;color:#FFFFFF;}
+.sheet .btn.danger{background:transparent;border-color:#8A2414;color:#8A2414;}
+.read-meta{margin:0;font-size:.88rem;font-weight:600;opacity:.8;}
+.read-title{margin:6px 0 10px;font-family:Kalam,"Segoe Print","Comic Sans MS",cursive;font-size:clamp(1.6rem,5vw,2rem);font-weight:700;line-height:1.15;overflow-wrap:anywhere;}
+.read-body{margin:0;font-family:Kalam,"Segoe Print","Comic Sans MS",cursive;font-size:1.12rem;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;}
+
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);max-width:min(92vw,520px);background:var(--ink);color:var(--board);padding:11px 16px;border-radius:10px;font-size:.92rem;font-weight:600;box-shadow:var(--shadow);z-index:50;}
+
+@media (max-width:760px){
+  #app{padding:20px 14px 40px;}
+  .masthead{align-items:flex-start;}
+  .week{grid-template-columns:1fr;gap:20px;}
+  .lane{min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  .lane .empty,.lane .add-here,.lane .stack{grid-column:1/-1;}
+  .note-open{min-height:104px;}
+  .mhead span{padding:6px 2px;text-align:center;font-size:.74rem;}
+  .cell{min-height:64px;padding:4px 3px;align-items:center;}
+  .cnum{align-self:center;}
+  .minis{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;}
+  .mini{width:8px;height:8px;padding:0;border-radius:50%;font-size:0;}
+  .more{font-size:.66rem;}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+@media print{
+  body{background:#fff;}
+  .controls,.editbar,.legend,.add-here,.foot,.note-tools{display:none !important;}
+  .note{box-shadow:none;border:1px solid #999;transform:none;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<dialog id="note-dialog" aria-label="Note"></dialog>
+<script type="application/json" id="board-data">{"title":"Geosciences","subtitle":"Mr. Chris Scandrett’s sixth grade class","carry":true,"savedAt":1794490807556,"focus":{"2026-11-09":"Killer Weather Live! Road to Film-Ready","2026-11-16":"Film Days! Bring your costume."},"notes":[{"id":"kw-09-1","date":"2026-11-09","type":"due","title":"Checkpoint 1","details":"Roles, station name, and storm approved. Get Mr. Scandrett’s initials on your checklist.","link":"","order":1,"done":false,"doneOn":null},{"id":"kw-10-1","date":"2026-11-10","type":"due","title":"Checkpoint 2","details":"Fact Sheet complete, with a source for every fact.","link":"","order":3,"done":false,"doneOn":null},{"id":"kw-11-1","date":"2026-11-11","type":"due","title":"Checkpoint 3","details":"Script and images in your shared Drive folder.","link":"","order":4,"done":false,"doneOn":null},{"id":"kw-12-1","date":"2026-11-12","type":"due","title":"Checkpoint 4","details":"Script final, and 4 or more images resized.","link":"","order":0,"done":false,"doneOn":null},{"id":"kw-12-2","date":"2026-11-12","type":"assignment","title":"Tonight: say your lines out loud 5 times","details":"Practice at home so you’re ready to go script-free tomorrow.","link":"","order":5,"done":false,"doneOn":null},{"id":"kw-13-0","date":"2026-11-13","type":"action","title":"Be film-ready by the bell","details":"☐ Say your lines with NO script\n☐ Rehearse the full show 3 times, with a timer\n☐ Point to each image as you talk about it\n☐ Look at the camera, not the floor\n☐ Keep going if you slip. Pros never stop!\n☐ Pack your costume for Film Day\n☐ Pass the Film-Ready check with Mr. Scandrett","link":"","order":1,"done":false,"doneOn":null},{"id":"kw-13-1","date":"2026-11-13","type":"due","title":"Checkpoint 5: Film-Ready check","details":"Lines memorized and rehearsal done. Get Mr. Scandrett’s initials, and you’re film-ready!","link":"","order":2,"done":false,"doneOn":null},{"id":"kw-16-0","date":"2026-11-16","type":"plan","title":"Film Day","details":"Bring your costume (no green!). Crews film their broadcasts in front of the green screen.\nOnce you receive your video file, edit it in Cava and submit on Walker Web.","link":"","order":0,"done":false,"doneOn":null},{"type":"test","title":"Weather vs. Climate Quiz","details":"","link":"","id":"nmw9n32panfd5o","date":"2026-11-12","order":2,"done":false,"doneOn":null},{"type":"test","title":"Weather vs. Climate Quiz","details":"","link":"","id":"nmw9n439wnf3s0","date":"2026-11-13","order":0,"done":false,"doneOn":null},{"type":"plan","title":"Film Day","details":"Bring your costume (no green!). Crews film their broadcasts in front of the green screen.\nOnce you receive your video file, edit it in Cava and submit on Walker Web.","link":"","id":"nmw9n6oeyg8wfv","date":"2026-11-17","order":0,"done":false,"doneOn":null},{"type":"plan","title":"Film Day","details":"Bring your costume (no green!). Crews film their broadcasts in front of the green screen.\nOnce you receive your video file, edit it in Cava and submit on Walker Web.","link":"","id":"nmw9n6tjuv7zz2","date":"2026-11-18","order":0,"done":false,"doneOn":null},{"type":"plan","title":"Film Day","details":"Bring your costume (no green!). Crews film their broadcasts in front of the green screen.\nOnce you receive your video file, edit it in Cava and submit on Walker Web.","link":"","id":"nmw9n6xww2uqi8","date":"2026-11-19","order":0,"done":false,"doneOn":null},{"type":"action","title":"Study Killer Weather Vocabulary","details":"","link":"","id":"nmw9n8ub9mf8c1","date":"2026-11-16","order":1,"done":false,"doneOn":null},{"type":"action","title":"Study Killer Weather Vocabulary","details":"","link":"","id":"nmw9n92rv0hhcg","date":"2026-11-17","order":1,"done":false,"doneOn":null},{"type":"action","title":"Study Killer Weather Vocabulary","details":"","link":"","id":"nmw9n96q9uicem","date":"2026-11-18","order":1,"done":false,"doneOn":null},{"type":"action","title":"Study Killer Weather Vocabulary","details":"","link":"","id":"nmw9n9aqu3yuvf","date":"2026-11-19","order":1,"done":false,"doneOn":null}]}</script>
+<script id="app-script">
+(function(){
+  var TYPES = [
+    {id:'plan', label:'Class plan'},
+    {id:'assignment', label:'Assignment'},
+    {id:'due', label:'Due'},
+    {id:'action', label:'Action item'},
+    {id:'test', label:'Test or quiz'}
+  ];
+  var TYPE_RANK = {plan:0, test:1, due:2, assignment:3, action:4};
+  function typeLabel(id){ for (var i=0;i<TYPES.length;i++){ if (TYPES[i].id===id) return TYPES[i].label; } return 'Note'; }
+
+  var state;
+  try { state = JSON.parse(document.getElementById('board-data').textContent); }
+  catch(e){ state = {title:'Class board', subtitle:'', carry:true, savedAt:0, focus:{}, notes:[]}; }
+  state.focus = state.focus || {};
+  state.notes = Array.isArray(state.notes) ? state.notes : [];
+  if (state.carry===undefined) state.carry = true;
+  var savedJSON = JSON.stringify(state);
+  var DRAFT_KEY = 'class-board-draft-v2';
+
+  // Editing is available when the file is opened from your computer (or with #edit in the address).
+  var EDITABLE = location.protocol==='file:' || /(^|#)edit$/.test(location.hash);
+
+  var view = 'week';
+  var today = new Date();
+  var anchor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  var hidden = {};
+  var editing = false, pendingDraft = null;
+
+  var app = document.getElementById('app');
+  var dlg = document.getElementById('note-dialog');
+
+  // ---------- helpers ----------
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function pad(n){ return (n<10?'0':'')+n; }
+  function toKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function fromKey(k){ var p=k.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+  function addDays(d,n){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()+n); return x; }
+  function startOfWeek(d){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); return addDays(x, -((x.getDay()+6)%7)); }
+  function schoolDayOnOrAfter(d){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); while (x.getDay()===0||x.getDay()===6) x=addDays(x,1); return x; }
+  function nextSchoolDay(d){ return schoolDayOnOrAfter(addDays(d,1)); }
+  var todayKey = toKey(today);
+  var currentKey = toKey(schoolDayOnOrAfter(today)); // where unfinished notes pile up
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var DOW_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  function longDate(d){ return DOW_LONG[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate(); }
+  function shortDate(d){ return DOW[d.getDay()]+', '+MONTHS[d.getMonth()].slice(0,3)+' '+d.getDate(); }
+  function weekRange(mon){
+    var fri = addDays(mon,4);
+    if (mon.getMonth()===fri.getMonth()) return MONTHS[mon.getMonth()]+' '+mon.getDate()+'–'+fri.getDate()+', '+fri.getFullYear();
+    if (mon.getFullYear()===fri.getFullYear()) return MONTHS[mon.getMonth()].slice(0,3)+' '+mon.getDate()+' – '+MONTHS[fri.getMonth()].slice(0,3)+' '+fri.getDate()+', '+fri.getFullYear();
+    return MONTHS[mon.getMonth()].slice(0,3)+' '+mon.getDate()+', '+mon.getFullYear()+' – '+MONTHS[fri.getMonth()].slice(0,3)+' '+fri.getDate()+', '+fri.getFullYear();
+  }
+  function newId(){ return 'n'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function tilt(id){ var h=0; for (var i=0;i<id.length;i++){ h=(h*31+id.charCodeAt(i))|0; } return [-1.6,-0.8,0,0.8,1.4][Math.abs(h)%5]; }
+  function isDirty(){ return JSON.stringify(state)!==savedJSON; }
+  function safeLink(u){ return /^https?:\/\//i.test(u||'') ? u : ''; }
+
+  // Unfinished notes from earlier days ride forward to the current school day.
+  function isCarried(n){ return !n.done && state.carry && n.date < currentKey; }
+  function shownOn(n){
+    if (n.done) return n.date;
+    return isCarried(n) ? currentKey : n.date;
+  }
+  function notesOn(key, includeHidden){
+    return state.notes.filter(function(n){ return shownOn(n)===key && (includeHidden || !hidden[n.type]); })
+      .sort(function(a,b){ return (a.order||0)-(b.order||0) || (TYPE_RANK[a.type]||0)-(TYPE_RANK[b.type]||0); });
+  }
+  function maxOrder(key){ var m=-1; state.notes.forEach(function(n){ if(shownOn(n)===key && (n.order||0)>m) m=n.order||0; }); return m; }
+
+  function saveDraft(){ try { localStorage.setItem(DRAFT_KEY, JSON.stringify({state:state, at:Date.now()})); } catch(e){} }
+  function clearDraft(){ try { localStorage.removeItem(DRAFT_KEY); } catch(e){} }
+  function readDraft(){ try { var r=localStorage.getItem(DRAFT_KEY); return r?JSON.parse(r):null; } catch(e){ return null; } }
+
+  var toastTimer=null;
+  function toast(msg){
+    var t=document.getElementById('toast');
+    if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
+    t.textContent=msg; t.hidden=false;
+    clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.hidden=true; }, 4200);
+  }
+
+  function changed(){
+    if (isDirty()) saveDraft(); else clearDraft();
+    refreshEditbar();
+  }
+
+  // ---------- note actions ----------
+  function toggleDone(n){
+    if (n.done){ n.done=false; n.doneOn=null; }
+    else { n.done=true; n.doneOn=null; }
+  }
+  function moveToNextDay(n){
+    var next=toKey(nextSchoolDay(fromKey(shownOn(n))));
+    n.date=next; n.order=maxOrder(next)+1;
+    return next;
+  }
+
+  // ---------- rendering ----------
+  var ICON_CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var ICON_NEXT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
+
+  function noteCard(n){
+    var carried=isCarried(n);
+    return '<article class="note t-'+esc(n.type)+(n.done?' done':'')+(carried?' carried':'')+'" data-id="'+esc(n.id)+'"'+(editing?' draggable="true"':'')+' style="--tilt:'+tilt(n.id)+'deg">'
+      +(carried?'<span class="note-from">From '+esc(shortDate(fromKey(n.date)))+'</span>':'')
+      +'<button type="button" class="note-open" data-open="'+esc(n.id)+'">'
+      +'<span class="note-title">'+esc(n.title||'Untitled')+'</span>'
+      +(n.details?'<span class="note-body">'+esc(n.details)+'</span>':'')
+      +'<span class="note-type">'+esc(typeLabel(n.type))+(safeLink(n.link)?', has a link':'')+'</span>'
+      +'</button>'
+      +(n.done?'<span class="done-stamp">Done</span>':'')
+      +(editing?'<div class="note-tools"><button type="button" class="tool" data-done="'+esc(n.id)+'" aria-pressed="'+(!!n.done)+'" aria-label="'+(n.done?'Mark not completed':'Mark completed')+'" title="'+(n.done?'Mark not completed':'Mark completed')+'">'+ICON_CHECK+'</button>'
+        +'<button type="button" class="tool" data-next="'+esc(n.id)+'" aria-label="Move to next school day" title="Move to next school day">'+ICON_NEXT+'</button></div>':'')
+      +'</article>';
+  }
+
+  function laneContent(k){
+    var ns=notesOn(k);
+    var carried=ns.filter(isCarried).sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:0; });
+    var rest=ns.filter(function(n){ return !isCarried(n); });
+    var html='';
+    if (carried.length){
+      html+='<div class="stack" aria-label="Still open from earlier days"><p class="stack-label">Still open ('+carried.length+')</p>'+carried.map(noteCard).join('')+'</div>';
+    }
+    html+=rest.map(noteCard).join('');
+    if (editing) html+='<button type="button" class="add-here" data-add="'+k+'">+ Add a note</button>';
+    else if (!ns.length) html+='<p class="empty">Nothing posted.</p>';
+    return html;
+  }
+
+  function weekGrid(){
+    var mon = startOfWeek(anchor), html='<div class="week">';
+    for (var i=0;i<5;i++){
+      var d=addDays(mon,i), k=toKey(d), isToday=k===todayKey;
+      html+='<section class="day'+(isToday?' is-today':'')+'" aria-label="'+esc(longDate(d))+'">'
+        +'<header class="day-head"><span class="dow">'+DOW[d.getDay()]+'</span><span class="dnum">'+MONTHS[d.getMonth()].slice(0,3)+' '+d.getDate()+'</span>'+(isToday?'<span class="today-tag">Today</span>':'')+'</header>'
+        +'<div class="lane" data-drop="'+k+'">'+laneContent(k)+'</div></section>';
+    }
+    html+='</div>';
+    var sat=toKey(addDays(mon,5)), sun=toKey(addDays(mon,6));
+    var wk=notesOn(sat).concat(notesOn(sun));
+    if (wk.length){
+      html+='<section class="weekend-row"><h3>Weekend</h3><div class="lane">'+wk.map(noteCard).join('')+'</div></section>';
+    }
+    return html;
+  }
+
+  function monthGrid(){
+    var first=new Date(anchor.getFullYear(),anchor.getMonth(),1);
+    var start=startOfWeek(first);
+    var last=new Date(anchor.getFullYear(),anchor.getMonth()+1,0);
+    var weeks=Math.ceil((Math.round((last-start)/86400000)+1)/7);
+    var html='<div class="month"><div class="mhead" aria-hidden="true">'+['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(function(s){return '<span>'+s+'</span>';}).join('')+'</div><div class="mgrid">';
+    for (var i=0;i<weeks*7;i++){
+      var d=addDays(start,i), k=toKey(d), ns=notesOn(k);
+      var cls='cell'+(d.getMonth()!==first.getMonth()?' outside':'')+(d.getDay()===0||d.getDay()===6?' weekend':'')+(k===todayKey?' is-today':'');
+      html+='<button type="button" class="'+cls+'" data-goto="'+k+'" aria-label="'+esc(longDate(d))+', '+ns.length+(ns.length===1?' note':' notes')+'">'
+        +'<span class="cnum">'+d.getDate()+'</span><span class="minis">'
+        +ns.slice(0,3).map(function(n){ return '<span class="mini t-'+esc(n.type)+(n.done?' done':'')+'">'+esc(n.title)+'</span>'; }).join('')
+        +(ns.length>3?'<span class="more">+'+(ns.length-3)+' more</span>':'')
+        +'</span></button>';
+    }
+    return html+'</div></div>';
+  }
+
+  function editbarHTML(){
+    if (!EDITABLE) return '';
+    var dirty=isDirty();
+    var restore = pendingDraft ? '<div class="editbar"><span class="status dirty">You have unsaved changes from earlier.</span><button type="button" class="btn primary" id="restore-draft">Restore them</button><button type="button" class="btn" id="drop-draft">Discard</button></div>' : '';
+    if (!editing){
+      return restore+'<div class="editbar"><span class="status'+(dirty?' dirty':'')+'">'+(dirty?'Unsaved changes':'Students see this board as view-only on Google Sites.')+'</span><button type="button" class="btn primary" id="edit-on">Edit board</button></div>';
+    }
+    return restore+'<div class="editbar"><span class="status'+(dirty?' dirty':'')+'">'+(dirty?'Unsaved changes':'All changes saved to the file.')+'</span>'
+      +'<button type="button" class="btn" id="add-note">Add a note</button>'
+      +'<button type="button" class="btn" id="discard"'+(dirty?'':' disabled')+'>Discard changes</button>'
+      +'<button type="button" class="btn primary" id="save-file">Save file</button>'
+      +'<button type="button" class="btn" id="copy-code">Copy for Google Sites</button>'
+      +'<button type="button" class="btn" id="edit-off">Done editing</button>'
+      +'<label class="toggle"><input type="checkbox" id="carry-toggle"'+(state.carry?' checked':'')+'> Move unfinished notes forward and stack them on today</label></div>';
+  }
+
+  function render(){
+    app.classList.toggle('editing', editing);
+    var mon=startOfWeek(anchor), wkKey=toKey(mon);
+    var focusText=state.focus[wkKey]||'';
+    var titleBlock = editing
+      ? '<input class="title-input" id="title-input" aria-label="Board title" value="'+esc(state.title)+'"><input class="subtitle-input" id="subtitle-input" aria-label="Subtitle" placeholder="Subtitle (optional)" value="'+esc(state.subtitle||'')+'">'
+      : '<h1>'+esc(state.title||'Class board')+'</h1>'+(state.subtitle?'<p class="subtitle">'+esc(state.subtitle)+'</p>':'');
+    var unit = view==='week'?'week':'month';
+    var periodLabel = view==='week' ? weekRange(mon) : MONTHS[anchor.getMonth()]+' '+anchor.getFullYear();
+    var focusBlock = '';
+    if (view==='week'){
+      focusBlock = editing
+        ? '<input class="focus-input hand" id="focus-input" aria-label="This week’s focus" placeholder="What’s this week about? (optional)" value="'+esc(focusText)+'">'
+        : (focusText?'<p class="focus hand">'+esc(focusText)+'</p>':'');
+    }
+    app.innerHTML =
+      '<header class="masthead"><div class="titles">'+titleBlock+'</div>'
+      +'<div class="controls"><div class="seg" role="group" aria-label="Calendar view">'
+      +'<button type="button" data-view="week" aria-pressed="'+(view==='week')+'">Week</button>'
+      +'<button type="button" data-view="month" aria-pressed="'+(view==='month')+'">Month</button></div>'
+      +'<div class="nav"><button type="button" class="arrow" data-nav="-1" aria-label="Previous '+unit+'">‹</button>'
+      +'<button type="button" data-nav="today">Today</button>'
+      +'<button type="button" class="arrow" data-nav="1" aria-label="Next '+unit+'">›</button></div></div></header>'
+      +'<div id="editbar-wrap">'+editbarHTML()+'</div>'
+      +'<section class="period"><h2 class="period-label">'+esc(periodLabel)+'</h2>'+focusBlock+'</section>'
+      +'<div class="legend" role="group" aria-label="Show or hide note types">'
+      +TYPES.map(function(t){ return '<button type="button" class="chip t-'+t.id+'" data-type="'+t.id+'" aria-pressed="'+(!hidden[t.id])+'"><span class="sw"></span><span class="label">'+t.label+'</span></button>'; }).join('')
+      +'</div>'
+      +(view==='week'?weekGrid():monthGrid())
+      +'<p class="foot">'+(editing
+          ? 'Drag a note to another day, or use the arrow to push it to the next school day. The check marks it done. When you’re finished, save the file, then copy it into Google Sites.'
+          : (view==='week'?'Tap a note to read all of it.':'Tap a day to open that week.'))+'</p>';
+    bind();
+  }
+
+  function refreshEditbar(){
+    var w=document.getElementById('editbar-wrap');
+    if (!w) return;
+    w.innerHTML=editbarHTML();
+    bindEditbar();
+  }
+
+  // ---------- events ----------
+  var dragId=null;
+  function findNote(id){ return state.notes.find(function(x){ return x.id===id; }); }
+  function bind(){
+    app.querySelectorAll('[data-view]').forEach(function(b){ b.onclick=function(){
+      var v=b.dataset.view; if (v===view) return;
+      if (v==='month') anchor=addDays(startOfWeek(anchor),3);
+      view=v; render();
+    }; });
+    app.querySelectorAll('[data-nav]').forEach(function(b){ b.onclick=function(){
+      var a=b.dataset.nav;
+      if (a==='today') anchor=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+      else if (view==='week') anchor=addDays(startOfWeek(anchor),7*Number(a));
+      else anchor=new Date(anchor.getFullYear(),anchor.getMonth()+Number(a),1);
+      render();
+    }; });
+    app.querySelectorAll('.chip').forEach(function(b){ b.onclick=function(){ var t=b.dataset.type; hidden[t]=!hidden[t]; render(); }; });
+    app.querySelectorAll('[data-open]').forEach(function(b){ b.onclick=function(){ openNote(b.dataset.open); }; });
+    app.querySelectorAll('[data-done]').forEach(function(b){ b.onclick=function(){
+      var n=findNote(b.dataset.done); if(!n) return; toggleDone(n); changed(); render();
+      toast(n.done?'Marked done.':'Marked not done.');
+    }; });
+    app.querySelectorAll('[data-next]').forEach(function(b){ b.onclick=function(){
+      var n=findNote(b.dataset.next); if(!n) return; var k=moveToNextDay(n); changed(); render();
+      toast('Moved to '+shortDate(fromKey(k))+'.');
+    }; });
+    if (editing){
+      app.querySelectorAll('.note').forEach(function(el){
+        el.addEventListener('dragstart',function(e){ dragId=el.dataset.id; el.classList.add('dragging'); try{ e.dataTransfer.setData('text/plain',dragId); e.dataTransfer.effectAllowed='move'; }catch(_){} });
+        el.addEventListener('dragend',function(){ el.classList.remove('dragging'); dragId=null; app.querySelectorAll('.drag-over').forEach(function(x){x.classList.remove('drag-over');}); });
+      });
+      app.querySelectorAll('[data-drop]').forEach(function(lane){
+        lane.addEventListener('dragover',function(e){ if(!dragId) return; e.preventDefault(); lane.classList.add('drag-over'); });
+        lane.addEventListener('dragleave',function(e){ if(!lane.contains(e.relatedTarget)) lane.classList.remove('drag-over'); });
+        lane.addEventListener('drop',function(e){
+          e.preventDefault(); lane.classList.remove('drag-over');
+          var id=dragId; if(!id) return;
+          var target=e.target.closest ? e.target.closest('.note') : null;
+          moveNote(id, lane.dataset.drop, target && target.dataset.id!==id ? target.dataset.id : null);
+        });
+      });
+    }
+    app.querySelectorAll('[data-add]').forEach(function(b){ b.onclick=function(){ openNote(null,b.dataset.add); }; });
+    app.querySelectorAll('[data-goto]').forEach(function(b){ b.onclick=function(){ anchor=fromKey(b.dataset.goto); view='week'; render(); }; });
+    var ti=document.getElementById('title-input'); if(ti) ti.oninput=function(){ state.title=ti.value; changed(); };
+    var si=document.getElementById('subtitle-input'); if(si) si.oninput=function(){ state.subtitle=si.value; changed(); };
+    var fi=document.getElementById('focus-input'); if(fi) fi.oninput=function(){
+      var k=toKey(startOfWeek(anchor)); var v=fi.value;
+      if (v.trim()) state.focus[k]=v; else delete state.focus[k];
+      changed();
+    };
+    bindEditbar();
+  }
+
+  function bindEditbar(){
+    var on=document.getElementById('edit-on'); if(on) on.onclick=function(){ editing=true; render(); };
+    var off=document.getElementById('edit-off'); if(off) off.onclick=function(){ editing=false; render(); };
+    var add=document.getElementById('add-note'); if(add) add.onclick=function(){ openNote(null,null); };
+    var dis=document.getElementById('discard'); if(dis) dis.onclick=function(){
+      if (!confirm('Discard all unsaved changes?')) return;
+      state=JSON.parse(savedJSON); clearDraft(); render(); toast('Changes discarded.');
+    };
+    var sv=document.getElementById('save-file'); if(sv) sv.onclick=saveFile;
+    var cp=document.getElementById('copy-code'); if(cp) cp.onclick=copyCode;
+    var ct=document.getElementById('carry-toggle'); if(ct) ct.onchange=function(){ state.carry=ct.checked; changed(); render(); };
+    var rs=document.getElementById('restore-draft'); if(rs) rs.onclick=function(){ state=pendingDraft.state; pendingDraft=null; editing=true; render(); toast('Unsaved changes restored.'); };
+    var dd=document.getElementById('drop-draft'); if(dd) dd.onclick=function(){ pendingDraft=null; clearDraft(); refreshEditbar(); };
+  }
+
+  function moveNote(id, dateKey, beforeId){
+    var n=findNote(id); if(!n) return;
+    n.date=dateKey;
+    var list=notesOn(dateKey,true).filter(function(x){return x.id!==id;});
+    var idx = beforeId ? list.findIndex(function(x){return x.id===beforeId;}) : -1;
+    if (idx<0) list.push(n); else list.splice(idx,0,n);
+    list.forEach(function(x,i){ x.order=i; });
+    changed(); render();
+  }
+
+  // ---------- dialog ----------
+  function defaultDate(){
+    var mon=startOfWeek(anchor), t=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    if (view==='week' && t>=mon && t<=addDays(mon,4)) return todayKey;
+    if (view==='month' && t.getMonth()===anchor.getMonth() && t.getFullYear()===anchor.getFullYear()) return todayKey;
+    return toKey(view==='week'?mon:new Date(anchor.getFullYear(),anchor.getMonth(),1));
+  }
+
+  function openNote(id, dateKey){
+    var existing = id ? findNote(id) : null;
+    if (id && !existing) return;
+    if (!editing){
+      var n=existing, link=safeLink(n.link), meta=typeLabel(n.type)+', '+longDate(fromKey(n.date));
+      if (n.done) meta+='. Done';
+      else if (isCarried(n)) meta+='. Still open';
+      dlg.innerHTML='<article class="sheet t-'+esc(n.type)+'">'
+        +'<p class="read-meta">'+esc(meta)+'</p>'
+        +'<h2 class="read-title">'+esc(n.title)+'</h2>'
+        +(n.details?'<p class="read-body">'+esc(n.details)+'</p>':'')
+        +'<div class="actions">'+(link?'<a class="btn primary" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open link</a>':'')
+        +'<span class="spacer"></span><button type="button" class="btn" id="dlg-close">Close</button></div></article>';
+      dlg.showModal();
+      document.getElementById('dlg-close').onclick=function(){ dlg.close(); };
+      return;
+    }
+    var n2 = existing || {id:null, date:dateKey||defaultDate(), type:'assignment', title:'', details:'', link:'', done:false};
+    dlg.innerHTML='<div class="sheet t-'+esc(n2.type)+'" id="sheet">'
+      +'<h2>'+(existing?'Edit note':'New note')+'</h2>'
+      +'<fieldset class="types"><legend>Type</legend><div class="type-row">'
+      +TYPES.map(function(t){ return '<label class="tchip"><input type="radio" name="ntype" value="'+t.id+'"'+(t.id===n2.type?' checked':'')+'><span class="sw t-'+t.id+'"></span>'+t.label+'</label>'; }).join('')
+      +'</div></fieldset>'
+      +'<label class="field">Title<input class="title-field" id="f-title" maxlength="80" value="'+esc(n2.title)+'"></label>'
+      +'<label class="field">Date<input type="date" id="f-date" value="'+esc(n2.date)+'"></label>'
+      +'<label class="field">Details<textarea id="f-details" rows="4" placeholder="What should students know or do?">'+esc(n2.details)+'</textarea></label>'
+      +'<label class="field">Link (optional)<input type="url" id="f-link" placeholder="https://" value="'+esc(n2.link||'')+'"></label>'
+      +'<label class="check"><input type="checkbox" id="f-done"'+(n2.done?' checked':'')+'> Completed</label>'
+      +'<p class="error" id="f-error" role="alert"></p>'
+      +'<div class="actions">'+(existing?'<button type="button" class="btn danger" id="f-delete">Delete note</button><button type="button" class="btn" id="f-next">Move to next day</button>':'')
+      +'<span class="spacer"></span><button type="button" class="btn" id="f-cancel">Cancel</button><button type="button" class="btn primary" id="f-save">Save note</button></div></div>';
+    dlg.showModal();
+    var sheet=document.getElementById('sheet');
+    dlg.querySelectorAll('input[name="ntype"]').forEach(function(r){ r.onchange=function(){ sheet.className='sheet t-'+r.value; }; });
+    document.getElementById('f-cancel').onclick=function(){ dlg.close(); };
+    var del=document.getElementById('f-delete');
+    if (del) del.onclick=function(){
+      if (!confirm('Delete “'+(existing.title||'this note')+'”?')) return;
+      state.notes=state.notes.filter(function(x){return x.id!==existing.id;});
+      dlg.close(); changed(); render();
+    };
+    var nx=document.getElementById('f-next');
+    if (nx) nx.onclick=function(){ var k=moveToNextDay(existing); dlg.close(); changed(); render(); toast('Moved to '+shortDate(fromKey(k))+'.'); };
+    document.getElementById('f-save').onclick=function(){
+      var title=document.getElementById('f-title').value.trim();
+      var date=document.getElementById('f-date').value;
+      var err=document.getElementById('f-error');
+      if (!title){ err.textContent='Give the note a title.'; document.getElementById('f-title').focus(); return; }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)){ err.textContent='Pick a date for the note.'; document.getElementById('f-date').focus(); return; }
+      var link=document.getElementById('f-link').value.trim();
+      if (link && !/^https?:\/\//i.test(link)) link='https://'+link;
+      var typeEl=dlg.querySelector('input[name="ntype"]:checked');
+      var wantDone=document.getElementById('f-done').checked;
+      var data={type:typeEl?typeEl.value:'assignment', title:title, details:document.getElementById('f-details').value.trim(), link:link};
+      var target=existing;
+      if (existing){
+        var dateChanged = existing.date!==date;
+        Object.assign(existing,data);
+        if (dateChanged){ existing.date=date; existing.order=maxOrder(date)+1; }
+      } else {
+        data.id=newId(); data.date=date; data.order=maxOrder(date)+1; data.done=false; data.doneOn=null;
+        state.notes.push(data); target=data;
+      }
+      if (wantDone!==!!target.done) toggleDone(target);
+      dlg.close();
+      var d=fromKey(shownOn(target));
+      if (view==='week' && toKey(startOfWeek(d))!==toKey(startOfWeek(anchor))) anchor=d;
+      if (view==='month' && (d.getMonth()!==anchor.getMonth() || d.getFullYear()!==anchor.getFullYear())) anchor=new Date(d.getFullYear(),d.getMonth(),1);
+      changed(); render();
+    };
+    setTimeout(function(){ var t=document.getElementById('f-title'); if(t) t.focus(); },0);
+  }
+  dlg.addEventListener('click',function(e){ if(e.target===dlg) dlg.close(); });
+
+  // ---------- saving ----------
+  function buildDoc(){
+    var css=document.getElementById('app-style').textContent;
+    var js=document.getElementById('app-script').textContent;
+    var json=JSON.stringify(state).replace(/</g,'\\u003c');
+    var S='<'+'/script>';
+    return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+      +'<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+      +'<title>'+esc(state.title||'Class board')+'</title>\n'
+      +'<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+      +'<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+      +'<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Kalam:wght@400;700&display=swap" rel="stylesheet">\n'
+      +'<style id="app-style">'+css+'</style>\n</head>\n<body>\n<div id="app"></div>\n<dialog id="note-dialog" aria-label="Note"></dialog>\n'
+      +'<script type="application/json" id="board-data">'+json+S+'\n'
+      +'<script id="app-script">'+js+S+'\n</body>\n</html>\n';
+  }
+
+  function saveFile(){
+    state.savedAt=Date.now();
+    var html=buildDoc();
+    try {
+      var blob=new Blob([html],{type:'text/html'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.href=url; a.download='class-board.html';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      savedJSON=JSON.stringify(state); clearDraft(); refreshEditbar();
+      toast('Saved. Replace your old class-board.html with this one.');
+    } catch(e){
+      toast('Couldn’t save the file. Use “Copy for Google Sites” and paste the code into a new file instead.');
+    }
+  }
+
+  function showCodeDialog(html){
+    dlg.innerHTML='<div class="sheet" style="--c:#F4F7F5"><h2>Copy this code</h2>'
+      +'<p class="help">Select all of the code below, copy it, and paste it into the Google Sites embed box.</p>'
+      +'<textarea class="code-box" id="code-box" readonly></textarea>'
+      +'<div class="actions"><span class="spacer"></span><button type="button" class="btn primary" id="code-close">Done</button></div></div>';
+    var box=document.getElementById('code-box'); box.value=html;
+    dlg.showModal(); box.focus(); box.select();
+    document.getElementById('code-close').onclick=function(){ dlg.close(); };
+  }
+
+  function copyCode(){
+    var html=buildDoc();
+    var after=isDirty()?' Save the file too, so your copy matches.':'';
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(html).then(function(){
+        toast('Copied. In Google Sites, paste it into the embed code box.'+after);
+      }).catch(function(){ showCodeDialog(html); });
+    } else {
+      showCodeDialog(html);
+    }
+  }
+
+  // ---------- start ----------
+  if (EDITABLE){
+    var d=readDraft();
+    if (d && d.state){
+      if (JSON.stringify(d.state)===savedJSON || (state.savedAt && d.at<state.savedAt)) clearDraft();
+      else pendingDraft=d;
+    }
+  }
+  render();
+})();
+</script>
+</body>
+</html>
